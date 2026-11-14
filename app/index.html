@@ -172,23 +172,56 @@
 <section id="slideshow" aria-label="Discover their story">
   <h1 id="slideshow-title">Discover their story</h1>
   <div id="rovers">
-    <div class="star" style="--i:0; --tone:#6a3626; --glow:rgba(190, 90, 50, 0.30);">
+    <button type="button" class="star" style="--i:0; --tone:#6a3626; --glow:rgba(220, 115, 60, 0.45);">
       <svg class="star-icon" viewBox="0 0 100 100" aria-hidden="true"><path d="M50,6 L62,38 L96,38 L68,58 L79,92 L50,71 L21,92 L32,58 L4,38 L38,38 Z"/></svg>
       <p class="star-name">Spirit</p>
-    </div>
-    <div class="star" style="--i:1; --tone:#7a4030; --glow:rgba(200, 100, 55, 0.32);">
+    </button>
+    <button type="button" class="star" style="--i:1; --tone:#7a4030; --glow:rgba(220, 115, 60, 0.45);">
       <svg class="star-icon" viewBox="0 0 100 100" aria-hidden="true"><path d="M50,6 L62,38 L96,38 L68,58 L79,92 L50,71 L21,92 L32,58 L4,38 L38,38 Z"/></svg>
       <p class="star-name">Opportunity</p>
-    </div>
-    <div class="star" style="--i:2; --tone:#a8663f; --glow:rgba(225, 125, 60, 0.50);">
+    </button>
+    <button type="button" class="star" style="--i:2; --tone:#a8663f; --glow:rgba(220, 115, 60, 0.45);">
       <svg class="star-icon" viewBox="0 0 100 100" aria-hidden="true"><path d="M50,6 L62,38 L96,38 L68,58 L79,92 L50,71 L21,92 L32,58 L4,38 L38,38 Z"/></svg>
       <p class="star-name">InSight</p>
-    </div>
-    <div class="star" style="--i:3; --tone:#cc8a55; --glow:rgba(240, 145, 70, 0.65);">
+    </button>
+    <button type="button" class="star" style="--i:3; --tone:#cc8a55; --glow:rgba(220, 115, 60, 0.45);">
       <svg class="star-icon" viewBox="0 0 100 100" aria-hidden="true"><path d="M50,6 L62,38 L96,38 L68,58 L79,92 L50,71 L21,92 L32,58 L4,38 L38,38 Z"/></svg>
       <p class="star-name">Sojourner</p>
-    </div>
+    </button>
   </div>
+</section>
+
+<section id="rover-view" aria-label="Rover details">
+  <button id="rover-back" type="button" aria-label="Back to all rovers"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 4 L7 12 L15 20"/></svg>Back</button>
+
+  <h2 id="rover-name" class="fade"></h2>
+
+  <div id="rover-row" class="turn">
+    <button id="rover-prev" class="arrow" type="button" aria-label="Previous rover"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 4 L7 12 L15 20"/></svg></button>
+    <img id="rover-photo" class="fade" alt="">
+    <button id="rover-next" class="arrow" type="button" aria-label="Next rover"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4 L17 12 L9 20"/></svg></button>
+  </div>
+
+  <!-- Only this middle part scrolls on very small screens; the buttons around it stay put -->
+  <div id="rover-info" class="turn">
+    <dl id="rover-facts" class="fade"></dl>
+    <p id="rover-note" class="fade" hidden>A sol is one Martian day, about 24 hours and 40 minutes.</p>
+  </div>
+
+  <!-- Mission, Gallery, ... replace the photo and the facts when you press a button below -->
+  <div id="rover-section" class="turn">
+    <h3 id="section-title"></h3>
+    <div id="section-body"></div>
+  </div>
+
+  <!-- A button works once its rover has that section in app.js (see "sections") -->
+  <nav id="rover-tabs" aria-label="More about this rover">
+    <button type="button" data-section="mission">Mission</button>
+    <button type="button" data-section="gallery">Gallery</button>
+    <button type="button" data-section="discoveries">Discoveries</button>
+    <button type="button" data-section="journey">Journey</button>
+    <button type="button" data-section="parts">Parts</button>
+  </nav>
 </section>
 
 <div id="curtain" aria-hidden="true"></div>

@@ -64,9 +64,12 @@ document.addEventListener('keydown', (event) => {
         event.preventDefault();      // stop the page from scrolling
         if (!event.repeat) advance();
     }
-    if (event.code === 'Escape' && skipEnabled) {
-        skipToSlideshow();
+    if (event.code === 'Escape') {
+        if (roverOpen) goBack();                  // in a section: back to the rover; on a rover: back to the stars
+        else if (skipEnabled) skipToSlideshow();  // during the animation: skip to the stars
     }
+    if (roverOpen && !currentSection && event.code === 'ArrowLeft')  goToRover(-1);
+    if (roverOpen && !currentSection && event.code === 'ArrowRight') goToRover(1);
 });
 
 // Touch / click support for phones and tablets: tap anywhere
@@ -115,6 +118,7 @@ function startNextScene() {
 // Esc: stop the story and go to the slideshow
 function skipToSlideshow() {
     if (skipped) return;
+    if (document.getElementById('slideshow').classList.contains('show')) return;   // already on the stars screen
     skipped = true;
     waitingForInput = false;
     cutWait = null;
@@ -330,5 +334,402 @@ async function playMonologue() {
     ]);
 
 }
+
+/* ================= Rover screens ================= */
+
+// The facts for each rover, in the same order as the stars
+const ROVERS = [
+    {
+        name: 'Spirit',
+        image: 'img/spirit.jpg',
+        alt: 'Illustration of a Mars rover like Spirit on the surface of Mars',
+        facts: [
+            ['Launch', 'June 10, 2003'],
+            ['Landing', 'January 4, 2004'],
+            ['Landing site', 'Gusev Crater'],
+            ['Planned mission', '90 sols'],
+            ['Actual mission', 'More than 6 years'],
+            ['Distance travelled', 'About 8 km'],
+            ['Power source', 'Solar panels'],
+            ['Status', 'Silent since 2010'],
+            ['Type', 'Rover']
+        ]
+    },
+    {
+        name: 'Opportunity',
+        image: 'img/opportunity.jpg',
+        alt: 'Illustration of the Opportunity rover on the surface of Mars',
+        facts: [
+            ['Launch', 'July 7, 2003'],
+            ['Landing', 'January 25, 2004'],
+            ['Landing site', 'Meridiani Planum'],
+            ['Planned mission', '90 sols'],
+            ['Actual mission', 'Nearly 15 years'],
+            ['Distance travelled', 'Over 45 km'],
+            ['Power source', 'Solar panels'],
+            ['Status', 'Silent since June 2018'],
+            ['Type', 'Rover']
+        ],
+
+        // What the bottom buttons show. A rover without a section here has that button dimmed.
+        // Block types: { h: 'heading' }  { p: 'paragraph' }  { list: ['a', 'b'] }
+        //              { photo: {...} }  = a small arrow that reveals a photo
+        //              { gallery: [...] } and { parts: [...] }
+        // Photos: put the file name in src (for example 'img/opportunity-blueberries.jpg').
+        // While src is empty, a "Photo coming soon" frame is shown instead.
+        sections: {
+            mission: [
+                { p: 'At the beginning of the 21st century, scientists suspected that Mars may once have been a very different world. Images from orbit revealed dry river valleys, enormous channels carved into the landscape, and minerals that often form in the presence of water.' },
+                { p: 'But orbital images could only suggest a story. Confirming it required evidence from the ground.' },
+                { p: 'So NASA built Opportunity, one of two Mars Exploration Rovers, to provide it.' },
+                { p: 'The mission’s objective was simple in principle but revolutionary in practice: travel across Mars and search for geological evidence that liquid water once existed there.' },
+                { p: 'If water had persisted for long periods, Mars may once have contained environments where microscopic life could survive. Opportunity’s task was to determine whether those environments had ever existed.' }
+            ],
+
+            gallery: [
+                { gallery: [
+                        { src: '', alt: '', caption: '' },
+                        { src: '', alt: '', caption: '' },
+                        { src: '', alt: '', caption: '' }
+                    ] }
+            ],
+
+            discoveries: [
+                { h: 'The Blueberries' },
+                { p: 'Just weeks after landing, Opportunity found thousands of tiny spherical rocks scattered across the ground. Scientists nicknamed them “Martian Blueberries”.' },
+                { photo: { src: '', alt: 'The “Martian Blueberries”: tiny round rocks on the surface of Mars', caption: '' } },
+                { p: 'These small spheres contained hematite and were strong evidence that water had once interacted with the Martian surface.' },
+                { p: 'For scientists, this was a breakthrough.' },
+                { p: 'Mars was no longer just a planet that might have had water.' },
+                { p: 'There was now physical evidence in front of the rover.' },
+                { h: 'Ancient Groundwater' },
+                { p: 'Opportunity found rocks that contained chemicals left behind by ancient groundwater.' },
+                { p: 'This suggested that water did not simply appear and disappear quickly. Instead, some environments stayed wet for long periods of time.' },
+                { h: 'Habitable Environments' },
+                { p: 'Opportunity discovered conditions that may once have supported microbial life. It showed that ancient Mars contained places where microorganisms might have survived if they ever existed there.' }
+            ],
+
+            journey: [
+                { p: 'Opportunity’s story is remarkable not simply because of what it found, but because of how long it survived.' },
+                { p: 'The rover landed on the 25th of January, 2004 inside Eagle Crater and immediately found exposed rocks containing clues about Mars’ past. It then traveled across vast regions of the planet, visiting Endurance Crater, Victoria Crater, and eventually the enormous Endeavour Crater.' },
+                { p: 'Year after year, Opportunity continued operating.' },
+                { p: 'It survived:' },
+                { list: ['Dust storms', 'Extreme temperature changes', 'Aging electronics', 'Mechanical wear'] },
+                { p: 'The rover eventually traveled more than 45 kilometers across Mars, setting distance records for surface exploration on another world.' },
+                { p: 'A mission expected to last three months survived for nearly fifteen years.' },
+                { p: 'Its journey ended in 2018 when a planet-wide dust storm blocked sunlight from reaching its solar panels. The rover’s final transmission was received on June 10, 2018.' }
+            ],
+
+            parts: [
+                { parts: [
+                        { name: 'Pancam', text: 'Captured the images that revealed ancient lakebeds, craters, and the geological clues that pointed to a wetter Mars.' },
+                        { name: 'Robotic Arm', text: 'Allowed Opportunity to examine rocks up close and investigate signs of ancient water.' },
+                        { name: 'Rock Abrasion Tool', text: 'Ground through dusty rock surfaces to expose fresh material hidden beneath millions of years of Martian weathering.' },
+                        { name: 'Spectrometers', text: 'Identified minerals such as hematite, helping scientists understand how water shaped Mars long ago.' },
+                        { name: 'Solar Panels', text: 'Powered Opportunity for nearly fifteen years before a global dust storm blocked the sunlight it needed to survive.' },
+                        { name: 'Wheels', text: 'Carried the rover more than 45 kilometers across Mars, making it one of the longest-traveling explorers on another world.' },
+                        { name: 'Antenna', text: 'Sent thousands of images and scientific measurements back to Earth across millions of kilometers of space.' }
+                    ] }
+            ]
+        }
+    },
+    {
+        name: 'InSight',
+        image: 'img/insight.jpg',
+        alt: 'Illustration of the InSight lander on Mars, with its solar panels open',
+        facts: [
+            ['Launch', 'May 5, 2018'],
+            ['Landing', 'November 26, 2018'],
+            ['Landing site', 'Elysium Planitia'],
+            ['Planned mission', 'About 2 Earth years'],
+            ['Actual mission', 'About 4 Earth years'],
+            ['Power source', 'Solar panels'],
+            ['Status', 'Silent since December 2022'],
+            ['Type', 'Lander']
+        ]
+    },
+    {
+        name: 'Sojourner',
+        image: 'img/sojourner.jpg',
+        alt: 'The Sojourner rover on the surface of Mars, next to the Pathfinder lander',
+        facts: [
+            ['Launch', 'December 4, 1996'],
+            ['Landing', 'July 4, 1997'],
+            ['Landing site', 'Ares Vallis'],
+            ['Planned mission', '7 sols'],
+            ['Actual mission', 'Nearly 3 months'],
+            ['Distance travelled', 'About 100 meters'],
+            ['Power source', 'Solar panels'],
+            ['Status', 'Silent since September 1997'],
+            ['Type', 'Rover']
+        ]
+    }
+];
+
+const roverView  = document.getElementById('rover-view');
+const roverName  = document.getElementById('rover-name');
+const roverPhoto = document.getElementById('rover-photo');
+const roverFacts = document.getElementById('rover-facts');
+const roverNote  = document.getElementById('rover-note');
+
+let roverOpen = false;
+let currentRover = 0;
+
+// Load the photos in the background so they appear instantly
+ROVERS.forEach(r => { new Image().src = r.image; });
+
+// Put one rover's name, photo and facts on the screen
+function fillRover(i) {
+    const rover = ROVERS[i];
+    roverName.textContent = rover.name;
+    roverPhoto.src = rover.image;
+    roverPhoto.alt = rover.alt;
+
+    roverFacts.innerHTML = '';
+    for (const [label, value] of rover.facts) {
+        const fact = document.createElement('div');
+        fact.className = 'fact';
+        const dt = document.createElement('dt');
+        dt.textContent = label;
+        const dd = document.createElement('dd');
+        dd.textContent = value;
+        fact.append(dt, dd);
+        roverFacts.appendChild(fact);
+    }
+
+    // "sols" needs a short explanation
+    roverNote.hidden = !rover.facts.some(([, value]) => /\bsols?\b/.test(value));
+
+    updateTabs();
+}
+
+function openRover(i) {
+    currentRover = i;
+    fillRover(i);
+    roverOpen = true;
+    roverView.classList.add('show');
+}
+
+function closeRover() {
+    roverOpen = false;
+    roverView.classList.remove('show');
+    resetSection();
+}
+
+// step = 1 for the next rover, -1 for the previous one (it loops around)
+function goToRover(step) {
+    currentRover = (currentRover + step + ROVERS.length) % ROVERS.length;
+    roverView.classList.add('swapping');          // fade out
+    setTimeout(() => {
+        fillRover(currentRover);
+        roverView.classList.remove('swapping');   // fade in
+    }, 250);
+}
+
+document.querySelectorAll('.star').forEach((star, i) => {
+    star.addEventListener('click', () => openRover(i));
+});
+document.getElementById('rover-prev').addEventListener('click', () => goToRover(-1));
+document.getElementById('rover-next').addEventListener('click', () => goToRover(1));
+document.getElementById('rover-back').addEventListener('click', goBack);
+
+
+/* ================= Rover sections (Mission, Gallery, Discoveries, Journey, Parts) ================= */
+
+const SECTION_TITLES = {
+    mission: 'Mission',
+    gallery: 'Gallery',
+    discoveries: 'Discoveries',
+    journey: 'Journey',
+    parts: 'Parts'
+};
+
+const roverBack    = document.getElementById('rover-back');
+const sectionTitle = document.getElementById('section-title');
+const sectionBody  = document.getElementById('section-body');
+const tabs         = [...document.querySelectorAll('#rover-tabs button')];
+
+let currentSection = null;   // null = the rover's main screen
+let turning = false;         // true for a moment while the screen fades between two views
+let photoCount = 0;
+
+// Fade out, change what is on screen, fade back in
+function turnTo(change) {
+    if (turning) return;
+    turning = true;
+    roverView.classList.add('turning');
+    setTimeout(() => {
+        change();
+        roverView.classList.remove('turning');
+        turning = false;
+    }, 250);
+}
+
+// An empty frame that waits for a photo
+function makeSlot() {
+    const slot = document.createElement('div');
+    slot.className = 'slot';
+    slot.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="M4 18 L10 13 L14 16 L17 13 L20 16"/></svg><span>Photo coming soon</span>';
+    return slot;
+}
+
+// A photo with an optional caption. If the file is missing, the empty frame is shown instead.
+function makePhoto(spec = {}, extraClass = '') {
+    const figure = document.createElement('figure');
+    figure.className = ('photo ' + extraClass).trim();
+
+    if (spec.src) {
+        const img = document.createElement('img');
+        img.src = spec.src;
+        img.alt = spec.alt || '';
+        img.addEventListener('error', () => img.replaceWith(makeSlot()));
+        figure.appendChild(img);
+    } else {
+        figure.appendChild(makeSlot());
+    }
+
+    if (spec.caption) {
+        const caption = document.createElement('figcaption');
+        caption.textContent = spec.caption;
+        figure.appendChild(caption);
+    }
+    return figure;
+}
+
+// The small arrow that shows or hides a photo
+function makeReveal(spec) {
+    const figure = makePhoto(spec, 'wide');
+    figure.hidden = true;
+    figure.id = 'section-photo-' + (++photoCount);
+
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'reveal';
+    button.setAttribute('aria-expanded', 'false');
+    button.setAttribute('aria-controls', figure.id);
+    button.innerHTML = '<span class="reveal-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4 L17 12 L9 20"/></svg></span><span class="reveal-label"></span>';
+    const label = button.querySelector('.reveal-label');
+    label.textContent = spec.label || 'See the photo';
+
+    button.addEventListener('click', () => {
+        const opening = figure.hidden;
+        figure.hidden = !opening;
+        button.setAttribute('aria-expanded', String(opening));
+        label.textContent = opening ? 'Hide the photo' : (spec.label || 'See the photo');
+    });
+
+    return [button, figure];
+}
+
+// Build a section from its blocks
+function renderSection(blocks) {
+    sectionBody.innerHTML = '';
+    let wide = false;
+
+    for (const block of blocks) {
+        if (block.h) {
+            const h = document.createElement('h4');
+            h.textContent = block.h;
+            sectionBody.appendChild(h);
+        } else if (block.p) {
+            const p = document.createElement('p');
+            p.textContent = block.p;
+            sectionBody.appendChild(p);
+        } else if (block.list) {
+            const ul = document.createElement('ul');
+            for (const item of block.list) {
+                const li = document.createElement('li');
+                li.textContent = item;
+                ul.appendChild(li);
+            }
+            sectionBody.appendChild(ul);
+        } else if (block.photo) {
+            sectionBody.append(...makeReveal(block.photo));
+        } else if (block.gallery) {
+            wide = true;
+            const grid = document.createElement('div');
+            grid.className = 'gallery';
+            for (const spec of block.gallery) grid.appendChild(makePhoto(spec));
+            sectionBody.appendChild(grid);
+        } else if (block.parts) {
+            wide = true;
+            const grid = document.createElement('div');
+            grid.className = 'parts';
+            for (const part of block.parts) {
+                const item = document.createElement('div');
+                item.className = 'part';
+                const name = document.createElement('p');
+                name.className = 'part-name';
+                name.textContent = part.name;
+                const text = document.createElement('p');
+                text.className = 'part-text';
+                text.textContent = part.text;
+                item.append(name, text);
+                grid.appendChild(item);
+            }
+            sectionBody.appendChild(grid);
+        }
+    }
+
+    sectionBody.classList.toggle('wide', wide);
+    sectionBody.scrollTop = 0;
+}
+
+// Dim the buttons this rover has no content for; highlight the one that is open
+function updateTabs() {
+    const sections = ROVERS[currentRover].sections || {};
+    for (const tab of tabs) {
+        const key = tab.dataset.section;
+        tab.setAttribute('aria-disabled', String(!sections[key]));
+        if (key === currentSection) tab.setAttribute('aria-current', 'true');
+        else tab.removeAttribute('aria-current');
+    }
+    roverBack.setAttribute('aria-label',
+        currentSection ? 'Back to ' + ROVERS[currentRover].name : 'Back to all rovers');
+}
+
+function openSection(key) {
+    const sections = ROVERS[currentRover].sections;
+    if (!sections || !sections[key] || key === currentSection) return;
+    turnTo(() => {
+        currentSection = key;
+        sectionTitle.textContent = SECTION_TITLES[key];
+        renderSection(sections[key]);
+        roverView.classList.add('in-section');
+        updateTabs();
+    });
+}
+
+function closeSection() {
+    if (!currentSection) return;
+    turnTo(() => {
+        currentSection = null;
+        roverView.classList.remove('in-section');
+        updateTabs();
+    });
+}
+
+// Used when the whole rover screen closes
+function resetSection() {
+    currentSection = null;
+    turning = false;
+    roverView.classList.remove('in-section', 'turning');
+}
+
+// Back button and Esc: one step back (section -> rover -> stars)
+function goBack() {
+    if (currentSection) closeSection();
+    else closeRover();
+}
+
+// A button opens its section; pressing the open one again goes back to the rover
+tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+        const key = tab.dataset.section;
+        if (key === currentSection) closeSection();
+        else openSection(key);
+    });
+});
+
 
 playIntro();

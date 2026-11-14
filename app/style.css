@@ -417,7 +417,15 @@ html, body {
   flex-direction: column;
   align-items: center;
   gap: 0.7rem;
-  cursor: default;
+  /* the stars are buttons: reset the button look */
+  background: none;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
   opacity: 0;
   transition: opacity 1.4s ease-in calc(3.2s + var(--i) * 0.45s);
 }
@@ -437,7 +445,8 @@ html, body {
 }
 
 /* The star grows when the cursor is on it (the whole star, including its name) */
-.star:hover .star-icon {
+.star:hover .star-icon,
+.star:focus-visible .star-icon {
   transform: scale(1.22);
   filter: drop-shadow(0 0 12px var(--glow)) drop-shadow(0 0 34px var(--glow));
 }
@@ -445,6 +454,392 @@ html, body {
 .star-name {
   margin: 0;
   font-size: clamp(1rem, 1.6vw, 1.2rem);
+}
+
+/* ---------- Rover screens ---------- */
+
+#rover-view {
+  position: fixed;
+  inset: 0;
+  z-index: 8;   /* above the stars screen */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 3.5vh 0 1.2rem;
+  overflow: hidden;   /* nothing here scrolls, so the buttons stay where they are (see #rover-info) */
+  font-family: var(--serif);
+  text-align: center;
+  background: radial-gradient(ellipse at 50% 40%, #0b0705 0%, #000 70%);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.6s ease, visibility 0s linear 0.6s;
+}
+
+#rover-view.show {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.6s ease;
+}
+
+/* These fade out and in when you move to another rover */
+.fade { transition: opacity 0.25s ease; }
+#rover-view.swapping .fade { opacity: 0; }
+
+#rover-back {
+  position: absolute;
+  top: 1.1rem;
+  left: clamp(1rem, 3vw, 2rem);
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0.5rem 0.8rem 0.5rem 0.4rem;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  color: var(--text-dim);
+  font: italic 1.05rem var(--serif);
+  cursor: pointer;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+#rover-back svg {
+  width: 1.3rem;
+  height: 1.3rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+#rover-back:hover,
+#rover-back:focus-visible {
+  color: var(--text);
+  border-color: rgba(204, 138, 85, 0.5);
+}
+
+#rover-name {
+  margin: 0;
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  font-weight: normal;
+}
+
+/* Arrow, photo, arrow */
+#rover-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 2.5vh;
+  padding: 0 clamp(1rem, 4vw, 3rem);
+}
+
+#rover-photo {
+  height: min(30vh, 300px);
+  aspect-ratio: 8 / 5;
+  width: auto;
+  max-width: 62vw;
+  object-fit: cover;
+  border-radius: 6px;
+  box-shadow: 0 0 40px rgba(200, 100, 55, 0.25);
+}
+
+.arrow {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 3.4rem;
+  height: 3.4rem;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: #262322;
+  color: var(--text);
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.arrow:hover,
+.arrow:focus-visible { background: #3a3532; }
+
+.arrow svg {
+  width: 1.7rem;
+  height: 1.7rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* The middle part takes the space left between the photo and the buttons, so the buttons never move.
+   It only scrolls if the screen is very small. */
+#rover-info {
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow-y: auto;
+}
+
+/* The facts: a small label with the value under it */
+#rover-facts {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1.2rem 2rem;
+  width: min(60rem, 92vw);
+  margin: 3vh 0 0;
+}
+
+.fact { width: 9.5rem; }
+
+.fact dt {
+  font-size: 0.9rem;
+  font-style: italic;
+  color: var(--text-dim);
+}
+
+.fact dd {
+  margin: 0.3rem 0 0;
+  font-size: 1.05rem;
+}
+
+#rover-note {
+  margin: 1.4rem 0 0;
+  font-size: 0.85rem;
+  font-style: italic;
+  color: var(--text-dim);
+}
+
+/* The buttons at the bottom (not functional yet) */
+#rover-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  flex: none;
+  gap: 0.9rem 1.2rem;
+  width: min(52rem, 94vw);
+  margin-top: 1rem;
+}
+
+#rover-tabs button {
+  padding: 0.6rem 1.6rem;
+  border: 1px solid rgba(204, 138, 85, 0.5);
+  border-radius: 6px;
+  background: linear-gradient(#2a1a13, #140b08);
+  box-shadow: inset 0 1px 0 rgba(255, 200, 150, 0.15);
+  color: var(--text);
+  font: 0.85rem var(--serif);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: default;
+}
+
+/* ---------- Rover sections: Mission, Gallery, Discoveries, Journey, Parts ---------- */
+
+.turn { transition: opacity 0.25s ease; }
+#rover-view.turning .turn { opacity: 0; }
+
+/* In a section the photo and the facts are replaced by the section; the buttons around it stay put */
+#rover-section {
+  display: none;
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 1.2vh;
+}
+
+#rover-view.in-section #rover-section { display: flex; }
+#rover-view.in-section #rover-row,
+#rover-view.in-section #rover-info { display: none; }
+
+#section-title {
+  flex: none;
+  margin: 0.2rem 0 1rem;
+  font-size: clamp(1.3rem, 2.6vw, 1.8rem);
+  font-weight: normal;
+  font-style: italic;
+  color: #cc8a55;
+}
+
+/* A centred reading column; the scrollbar sits at the edge of the screen */
+#section-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  overflow-y: auto;
+  padding: 0 max(1.5rem, calc((100% - 40rem) / 2)) 1.5rem;
+  text-align: left;
+  scrollbar-width: thin;
+  scrollbar-color: #3a3532 transparent;
+}
+
+/* Gallery and Parts need more room */
+#section-body.wide { padding-inline: max(1.5rem, calc((100% - 64rem) / 2)); }
+
+#section-body p {
+  margin: 0 0 1rem;
+  font-size: clamp(1.02rem, 1.5vw, 1.2rem);
+  line-height: 1.6;
+}
+
+#section-body h4 {
+  margin: 1.9rem 0 0.6rem;
+  font-size: clamp(1.2rem, 2vw, 1.45rem);
+  font-weight: normal;
+  color: #d9a273;
+}
+
+#section-body h4:first-child { margin-top: 0; }
+
+#section-body ul {
+  margin: 0 0 1rem;
+  padding-left: 1.3rem;
+  font-size: clamp(1.02rem, 1.5vw, 1.2rem);
+  line-height: 1.5;
+}
+
+#section-body li { margin: 0.25rem 0; }
+#section-body li::marker { color: #cc8a55; }
+
+/* The small arrow that shows a photo */
+.reveal {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin: 0 0 1rem;
+  padding: 0;
+  background: none;
+  border: 0;
+  color: var(--text-dim);
+  font: italic 0.95rem var(--serif);
+  cursor: pointer;
+}
+
+.reveal-icon {
+  display: grid;
+  place-items: center;
+  width: 2.2rem;
+  height: 2.2rem;
+  border-radius: 50%;
+  background: #262322;
+  color: var(--text);
+  transition: background 0.2s ease, transform 0.25s ease;
+}
+
+.reveal:hover .reveal-icon,
+.reveal:focus-visible .reveal-icon { background: #3a3532; }
+.reveal[aria-expanded="true"] .reveal-icon { transform: rotate(90deg); }
+
+.reveal svg,
+.slot svg {
+  width: 1.1rem;
+  height: 1.1rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Photos, and the empty frames that wait for a photo */
+.photo { margin: 0 0 1.4rem; }
+.photo[hidden] { display: none; }
+.photo.wide { max-width: 32rem; margin-inline: auto; }
+
+.photo img,
+.slot {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.photo.wide img,
+.photo.wide .slot { aspect-ratio: 16 / 10; }
+
+.slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border: 1px dashed rgba(204, 138, 85, 0.45);
+  background: rgba(204, 138, 85, 0.05);
+  color: var(--text-dim);
+  font-style: italic;
+  font-size: 0.95rem;
+}
+
+.slot svg { width: 2rem; height: 2rem; stroke-width: 1.5; }
+
+.photo figcaption {
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+  font-style: italic;
+  color: var(--text-dim);
+}
+
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.gallery .photo { margin: 0; }
+
+.parts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.3rem 2.5rem;
+}
+
+.part {
+  padding-left: 1rem;
+  border-left: 2px solid rgba(204, 138, 85, 0.5);
+}
+
+#section-body .part-name {
+  margin: 0 0 0.25rem;
+  font-size: 1.15rem;
+  line-height: 1.3;
+  color: #d9a273;
+}
+
+#section-body .part-text {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+/* The bottom buttons: dim when a rover has no content for them yet, bright for the open one */
+#rover-tabs button:not([aria-disabled="true"]) { cursor: pointer; }
+
+#rover-tabs button:not([aria-disabled="true"]):hover,
+#rover-tabs button:not([aria-disabled="true"]):focus-visible { border-color: #cc8a55; }
+
+#rover-tabs button[aria-disabled="true"] { opacity: 0.4; }
+
+#rover-tabs button[aria-current="true"] {
+  border-color: #cc8a55;
+  background: linear-gradient(#4a2c1e, #24130d);
+}
+
+@media (max-width: 700px) {
+  .gallery,
+  .parts { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (max-width: 600px) {
+  #rover-tabs { gap: 0.6rem; }
+  #rover-tabs button { padding: 0.5rem 1rem; font-size: 0.75rem; letter-spacing: 0.1em; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -462,6 +857,13 @@ html, body {
   #slideshow,
   #slideshow.show,
   #slideshow-title,
+  #rover-view,
+  #rover-view.show,
+  #rover-back,
+  .turn,
+  .reveal-icon,
+  .fade,
+  .arrow,
   .star,
   .star-icon,
   #prompt,
