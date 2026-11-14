@@ -285,6 +285,38 @@ html, body {
   color: var(--text-dim);
 }
 
+/* ---------- Closing monologue: big text on the whole screen ---------- */
+
+#monologue {
+  position: fixed;
+  inset: 0;
+  z-index: 6;   /* above the black curtain */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  justify-content: safe center;   /* if the text is ever taller than the screen, keep the top visible */
+  align-items: center;
+  gap: 1.1em;
+  padding: 14vh 2rem 3rem;        /* more space above than below, so the text sits lower on the page */
+  text-align: center;
+  font-family: var(--serif);
+  pointer-events: none;
+}
+
+#monologue p {
+  margin: 0;
+  max-width: 38ch;
+  font-size: clamp(1.2rem, 2.8vw, 2rem);
+  line-height: 1.3;
+  opacity: 0;
+  transition: opacity 1s ease-out;
+}
+
+#monologue p.visible {
+  opacity: 1;
+  transition: opacity 1.6s ease-in;
+}
+
 /* ---------- "Press space to continue" ---------- */
 
 #prompt {
@@ -342,6 +374,8 @@ html, body {
 
   .line,
   .line.visible,
+  #monologue p,
+  #monologue p.visible,
   #prompt,
   #prompt.visible,
   #skip-hint,

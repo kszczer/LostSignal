@@ -15,6 +15,7 @@ const curtain   = document.getElementById('curtain');
 const narration = document.getElementById('narration');
 const label     = document.getElementById('label');
 const skipHint  = document.getElementById('skip-hint');
+const monologue = document.getElementById('monologue');
 
 let waitingForInput = false;
 let onContinue = null;
@@ -26,15 +27,36 @@ function wait(ms) {
     return new Promise(resolve => setTimeout(() => { if (!skipped) resolve(); }, ms));
 }
 
+// Like wait(), but the player can end it early with Space (or a tap).
+// Returns true if it was cut short.
+let cutWait = null;
+function waitOrSkip(ms) {
+    return new Promise(resolve => {
+        const timer = setTimeout(() => {
+            cutWait = null;
+            if (!skipped) resolve(false);
+        }, ms);
+        cutWait = () => {
+            clearTimeout(timer);
+            cutWait = null;
+            if (!skipped) resolve(true);
+        };
+    });
+}
+
 function waitForSpace() {
     waitingForInput = true;
     return new Promise(resolve => { onContinue = resolve; });
 }
 
+// Space (or a tap): continue from "press space", or skip ahead if the text is still appearing
 function advance() {
-    if (!waitingForInput) return;  // ignore presses while text is fading
-    waitingForInput = false;
-    onContinue();
+    if (waitingForInput) {
+        waitingForInput = false;
+        onContinue();
+    } else if (cutWait) {
+        cutWait();
+    }
 }
 
 document.addEventListener('keydown', (event) => {
@@ -47,29 +69,31 @@ document.addEventListener('keydown', (event) => {
     }
 });
 
-// Touch / click support for phones and tablets
-prompt.addEventListener('click', advance);
+// Touch / click support for phones and tablets: tap anywhere
+document.addEventListener('click', advance);
 
 async function playIntro() {
-    await wait(START_DELAY);
+    await waitOrSkip(START_DELAY);
 
     // Line 1: fades in, holds, fades out on its own
     line1.classList.add('visible');
-    await wait(FADE_IN_MS + HOLD_MS);
+    await waitOrSkip(FADE_IN_MS + HOLD_MS);
     line1.classList.remove('visible');
     await wait(FADE_OUT_MS + BLACK_MS);
 
     // Line 2: fades in, then waits for the player
     line2.classList.add('visible');
-    await wait(FADE_IN_MS + PROMPT_DELAY);
-
-    prompt.classList.add('visible'); // "Press space to continue"
-    skipHint.classList.add('visible');    // "Press esc to skip to slideshow"
+    const hurried = await waitOrSkip(FADE_IN_MS + PROMPT_DELAY);
     skipEnabled = true;
-    await waitForSpace();
 
-    skipHint.classList.remove('visible');
-    prompt.classList.remove('visible');
+    if (!hurried) {
+        prompt.classList.add('visible'); // "Press space to continue"
+        skipHint.classList.add('visible');    // "Press esc to skip to slideshow"
+        await waitForSpace();
+
+        skipHint.classList.remove('visible');
+        prompt.classList.remove('visible');
+    }
     line2.classList.remove('visible');
     await wait(FADE_OUT_MS + BLACK_MS);
 
@@ -85,10 +109,12 @@ function skipToSlideshow() {
     if (skipped) return;
     skipped = true;
     waitingForInput = false;
+    cutWait = null;
 
     prompt.classList.remove('visible');
     skipHint.classList.remove('visible');
     narration.classList.remove('visible');
+    monologue.querySelectorAll('p').forEach(p => p.classList.remove('visible'));
     hideLabel();
     curtain.classList.add('closed');   // fade to black
 
@@ -157,10 +183,12 @@ function hideLabel() {
 async function say(text) {
     narration.textContent = text;
     narration.classList.add('visible');
-    await wait(1500 + text.length * 30);      // time to read before the prompt appears
-    prompt.classList.add('visible');
-    await waitForSpace();
-    prompt.classList.remove('visible');
+    const hurried = await waitOrSkip(1500 + text.length * 30);   // time to read; Space skips ahead
+    if (!hurried) {
+        prompt.classList.add('visible');                         // "Press space to continue"
+        await waitForSpace();
+        prompt.classList.remove('visible');
+    }
     narration.classList.remove('visible');
     await wait(900);
 }
@@ -183,7 +211,7 @@ async function playStory() {
 
     // PERSEVERANCE
     await cut('perseverance');
-    showLabel('Perserverance', 'Jezero Crater - Present Day');
+    showLabel('Perseverance', 'Jezero Crater - Present Day');
     await wait(8000);                          // the rover drives up to the rock
     stage.classList.add('scanning');
     await wait(3000);
@@ -234,11 +262,69 @@ async function playStory() {
     showLabel('An imagined scene', 'No life has been found on Mars yet');
     await wait(14000);
 
-    // The cinematic part is finished: fade out and hand over to the slideshow
+    // The cinematic part is finished: fade out, play the closing monologue, then the slideshow
     hideLabel();
     curtain.classList.add('closed');
     await wait(1500);
+
+    await playMonologue();
     startSlideshow();
+}
+
+
+/* ================= The closing monologue ================= */
+
+// One beat: its lines appear one after another, with no prompt.
+// Space (or a tap) skips ahead to the next line.
+async function beat(lines, hold = 2600) {
+    monologue.innerHTML = '';
+    const paragraphs = lines.map(text => {
+        const p = document.createElement('p');
+        p.textContent = text;
+        monologue.appendChild(p);
+        return p;
+    });
+
+    for (const p of paragraphs) {
+        p.classList.add('visible');
+        await waitOrSkip(1400 + p.textContent.length * 32);   // time to read the line
+    }
+    await waitOrSkip(hold);                                    // a moment with every line on screen
+
+    paragraphs.forEach(p => p.classList.remove('visible'));
+    await wait(1400);
+}
+
+async function playMonologue() {
+    // Beat 1: the possibility
+    await beat([
+        'Perseverance is still out there, still searching.',
+        "In a rock called Cheyava Falls, it found organic molecules, and strange little spots like a leopard's.",
+        'On Earth, tiny living things can leave marks like these.',
+        "But rocks can make them too. We can't be sure yet."
+    ]);
+
+    // Beat 2: the waiting
+    await beat([
+        'To know for certain, the sample has to reach a laboratory on Earth.',
+        'For now, it sits sealed in a tube, still on Mars.',
+        'And no mission is ready to bring it home.'
+    ]);
+
+    // Beat 3: not alone
+    await beat([
+        'But Perseverance is not the first explorer we left behind.',
+        'Buggies on the Moon. Landers on Mars. Probes still drifting out past the planets.',
+        'Some went quiet years ago. Some are still travelling.',
+        'Each was built to answer one question.'
+    ]);
+
+    // Beat 4: the reason (stays on screen a little longer before the slideshow)
+    await beat([
+        'And every answer made the next question possible.',
+        'Perseverance can search for life because they searched for water.',
+        'They are not wreckage. They are the reason we know where to look.'
+    ], 3800);
 }
 
 playIntro();
