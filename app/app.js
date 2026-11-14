@@ -14,12 +14,12 @@ const stage     = document.getElementById('stage');
 const curtain   = document.getElementById('curtain');
 const narration = document.getElementById('narration');
 const label     = document.getElementById('label');
-const skipHint  = document.getElementById('skip-hint');
+const skipHint  = document.getElementById('skip-hint');   // optional: the page works without this element
 const monologue = document.getElementById('monologue');
 
 let waitingForInput = false;
 let onContinue = null;
-let skipEnabled = false;   // Esc only works once the "press esc" hint has appeared
+let skipEnabled = true;    // Esc skips the whole animation, at any point
 let skipped = false;       // true once the player has skipped to the slideshow
 
 // After a skip, wait() never finishes, which stops the story where it is
@@ -72,6 +72,12 @@ document.addEventListener('keydown', (event) => {
 // Touch / click support for phones and tablets: tap anywhere
 document.addEventListener('click', advance);
 
+// Tapping the "skip" hint skips the animation too (for phones and tablets)
+skipHint?.addEventListener('click', (event) => {
+    event.stopPropagation();
+    skipToSlideshow();
+});
+
 async function playIntro() {
     await waitOrSkip(START_DELAY);
 
@@ -87,12 +93,14 @@ async function playIntro() {
     skipEnabled = true;
 
     if (!hurried) {
+        prompt.classList.add('raised');  // the prompt sits above the skip hint
         prompt.classList.add('visible'); // "Press space to continue"
-        skipHint.classList.add('visible');    // "Press esc to skip to slideshow"
+        skipHint?.classList.add('visible');    // "Press esc to skip to slideshow"
         await waitForSpace();
 
-        skipHint.classList.remove('visible');
+        skipHint?.classList.remove('visible');
         prompt.classList.remove('visible');
+        prompt.classList.remove('raised');
     }
     line2.classList.remove('visible');
     await wait(FADE_OUT_MS + BLACK_MS);
@@ -112,7 +120,7 @@ function skipToSlideshow() {
     cutWait = null;
 
     prompt.classList.remove('visible');
-    skipHint.classList.remove('visible');
+    skipHint?.classList.remove('visible');
     narration.classList.remove('visible');
     monologue.querySelectorAll('p').forEach(p => p.classList.remove('visible'));
     hideLabel();
@@ -121,8 +129,10 @@ function skipToSlideshow() {
     startSlideshow();
 }
 
+// The "Discover their story" screen. The title and the stars fade in by themselves (see style.css),
+// so this works even after Esc, when the timers above have been stopped.
 function startSlideshow() {
-    // The slideshow goes here. For now the screen just fades to black.
+    document.getElementById('slideshow').classList.add('show');
 }
 
 
@@ -319,12 +329,6 @@ async function playMonologue() {
         'Each was built to answer one question.'
     ]);
 
-    // Beat 4: the reason (stays on screen a little longer before the slideshow)
-    await beat([
-        'And every answer made the next question possible.',
-        'Perseverance can search for life because they searched for water.',
-        'They are not wreckage. They are the reason we know where to look.'
-    ], 3800);
 }
 
 playIntro();

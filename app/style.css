@@ -242,14 +242,14 @@ html, body {
 #narration {
   position: fixed;
   left: 50%;
-  bottom: 6.5rem;
+  bottom: 3.5rem;   /* low on the screen, so it stays clear of the rover and the rock */
   z-index: 6;   /* above the black curtain, so narration can play on a black screen */
-  width: min(34em, 88vw);
+  width: min(46em, 94vw);
   margin: 0;
   transform: translateX(-50%);
   text-align: center;
   font-family: var(--serif);
-  font-size: clamp(1.25rem, 2.6vw, 1.9rem);
+  font-size: clamp(1.2rem, 2.4vw, 1.75rem);
   line-height: 1.4;
   text-shadow: 0 2px 12px rgba(0, 0, 0, 0.9);
   opacity: 0;
@@ -323,7 +323,7 @@ html, body {
   position: fixed;
   left: 0;
   right: 0;
-  bottom: 3.5rem;
+  bottom: 1.25rem;
   z-index: 6;
   margin: 0;
   text-align: center;
@@ -340,12 +340,15 @@ html, body {
   transition: opacity 1.2s ease-in;
 }
 
-/* "Press esc to skip to slideshow" sits just above the prompt */
+/* While the skip hint is showing (the intro), the prompt sits above it */
+#prompt.raised { bottom: 2.9rem; }
+
+/* "Press esc to skip to slideshow" sits below the prompt */
 #skip-hint {
   position: fixed;
   left: 0;
   right: 0;
-  bottom: 2rem;
+  bottom: 1.25rem;
   z-index: 6;
   margin: 0;
   text-align: center;
@@ -364,6 +367,86 @@ html, body {
   transition: opacity 1.2s ease-in;
 }
 
+/* ---------- "Discover their story": title, then the four stars ---------- */
+
+#slideshow {
+  position: fixed;
+  inset: 0;
+  z-index: 7;   /* above the curtain, narration and monologue */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 7vh 2rem 3rem;
+  overflow-y: auto;
+  font-family: var(--serif);
+  text-align: center;
+  background: radial-gradient(ellipse at 50% 45%, #0b0705 0%, #000 70%);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 1s ease, visibility 0s linear 1s;
+}
+
+#slideshow.show {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 1s ease;
+}
+
+#slideshow-title {
+  margin: 0;
+  font-size: clamp(1.8rem, 4.2vw, 3rem);
+  font-weight: normal;
+  letter-spacing: 0.01em;
+  opacity: 0;
+  transition: opacity 2.5s ease-in 0.8s;
+}
+
+#slideshow.show #slideshow-title { opacity: 1; }
+
+#rovers {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 2.2rem 5rem;
+  width: min(560px, 92vw);
+  margin-top: 6vh;
+}
+
+/* Each star fades in after the title, one after another */
+.star {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.7rem;
+  cursor: default;
+  opacity: 0;
+  transition: opacity 1.4s ease-in calc(3.2s + var(--i) * 0.45s);
+}
+
+#slideshow.show .star { opacity: 1; }
+
+.star-icon {
+  width: clamp(64px, 12vw, 110px);
+  height: auto;
+  fill: var(--tone);
+  stroke: rgba(255, 200, 150, 0.35);
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+  overflow: visible;
+  filter: drop-shadow(0 0 8px var(--glow)) drop-shadow(0 0 22px var(--glow));
+  transition: transform 0.25s ease-out, filter 0.25s ease-out;
+}
+
+/* The star grows when the cursor is on it (the whole star, including its name) */
+.star:hover .star-icon {
+  transform: scale(1.22);
+  filter: drop-shadow(0 0 12px var(--glow)) drop-shadow(0 0 34px var(--glow));
+}
+
+.star-name {
+  margin: 0;
+  font-size: clamp(1rem, 1.6vw, 1.2rem);
+}
+
 @media (prefers-reduced-motion: reduce) {
   #stage .ridge,
   #stage .ring,
@@ -376,6 +459,11 @@ html, body {
   .line.visible,
   #monologue p,
   #monologue p.visible,
+  #slideshow,
+  #slideshow.show,
+  #slideshow-title,
+  .star,
+  .star-icon,
   #prompt,
   #prompt.visible,
   #skip-hint,
