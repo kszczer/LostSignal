@@ -3,15 +3,175 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Left Behind: NASA's Ghost Explorers</title>
+  <title>Lost Signal</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
+<!-- The picture: one SVG, and the script switches which parts are visible -->
+<div id="stage" class="mars">
+  <svg viewBox="0 0 1200 700" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+    <defs>
+      <!-- The sky runs from y = -400 (space) to y = 700, so there is more of it above the picture -->
+      <linearGradient id="sky" gradientUnits="userSpaceOnUse" x1="0" y1="-400" x2="0" y2="700">
+        <stop offset="0" stop-color="#05030a"/>
+        <stop offset="0.364" stop-color="#140b10"/>
+        <stop offset="0.586" stop-color="#6b3a2a"/>
+        <stop offset="0.714" stop-color="#d58a55"/>
+        <stop offset="1" stop-color="#d58a55"/>
+      </linearGradient>
+
+      <!-- Microscope view -->
+      <radialGradient id="lens-bg" cx="0.5" cy="0.45" r="0.6">
+        <stop offset="0" stop-color="#1d6486"/>
+        <stop offset="1" stop-color="#0b2a3a"/>
+      </radialGradient>
+      <clipPath id="lens-clip"><circle cx="790" cy="470" r="112"/></clipPath>
+
+      <!-- Perseverance, facing right, wheels touching y = 0 -->
+      <g id="perseverance">
+        <path d="M-80,-22 L-35,-64 L0,-22 M-35,-64 L30,-64 L80,-22" stroke="#8b8780" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <g fill="#1c1a19" stroke="#6d6963" stroke-width="3">
+          <circle cx="-80" cy="-22" r="22"/>
+          <circle cx="0" cy="-22" r="22"/>
+          <circle cx="80" cy="-22" r="22"/>
+        </g>
+        <rect x="-75" y="-108" width="140" height="44" rx="4" fill="#d9d6cf"/>
+        <rect x="-70" y="-114" width="130" height="7" fill="#bcb8b0"/>
+        <rect x="-102" y="-96" width="28" height="14" fill="#a7a39b"/>
+        <rect x="32" y="-172" width="5" height="60" fill="#8b8780"/>
+        <rect x="22" y="-190" width="34" height="20" rx="3" fill="#d9d6cf"/>
+        <circle cx="31" cy="-180" r="4" fill="#1c1a19"/>
+        <circle cx="47" cy="-180" r="4" fill="#1c1a19"/>
+        <path d="M65,-84 L98,-62 L106,-42" stroke="#8b8780" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      </g>
+
+      <!-- Opportunity: solar panel deck, covered in dust -->
+      <g id="opportunity">
+        <path d="M-72,-18 L-30,-60 L0,-18 M-30,-60 L35,-60 L72,-18" stroke="#8b8780" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <g fill="#1c1a19" stroke="#6d6963" stroke-width="3">
+          <circle cx="-72" cy="-18" r="18"/>
+          <circle cx="0" cy="-18" r="18"/>
+          <circle cx="72" cy="-18" r="18"/>
+        </g>
+        <rect x="-58" y="-76" width="116" height="30" rx="3" fill="#c8c3b8"/>
+        <rect x="-104" y="-88" width="208" height="12" fill="#3a3f55"/>
+        <path d="M-52,-88 V-76 M0,-88 V-76 M52,-88 V-76" stroke="#6a7090" stroke-width="2"/>
+        <rect x="44" y="-152" width="4" height="64" fill="#8b8780"/>
+        <rect x="36" y="-168" width="22" height="16" rx="2" fill="#c8c3b8"/>
+
+        <!-- Dust: a thin film over everything, plus small drifts. Raise the opacity values for more dust -->
+        <g fill="#b07a52">
+          <rect x="-104" y="-88" width="208" height="12" opacity="0.45"/>
+          <rect x="-58" y="-76" width="116" height="30" rx="3" opacity="0.3"/>
+          <rect x="36" y="-168" width="22" height="16" rx="2" opacity="0.3"/>
+          <circle cx="-72" cy="-18" r="18" opacity="0.35"/>
+          <circle cx="0" cy="-18" r="18" opacity="0.35"/>
+          <circle cx="72" cy="-18" r="18" opacity="0.35"/>
+          <ellipse cx="-30" cy="-89" rx="55" ry="5" opacity="0.55"/>
+          <ellipse cx="55" cy="-89" rx="30" ry="4" opacity="0.5"/>
+          <ellipse cx="-72" cy="-1" rx="26" ry="5" opacity="0.5"/>
+          <ellipse cx="0" cy="-1" rx="26" ry="5" opacity="0.5"/>
+          <ellipse cx="72" cy="-1" rx="26" ry="5" opacity="0.5"/>
+        </g>
+      </g>
+    </defs>
+
+    <rect y="-400" width="1200" height="1100" fill="url(#sky)"/>
+
+    <!-- A few stars, including some above the picture for when the camera tilts up -->
+    <g fill="#f1ede4" opacity="0.6">
+      <circle cx="90" cy="-340" r="1.4"/><circle cx="260" cy="-210" r="1"/>
+      <circle cx="410" cy="-370" r="1.6"/><circle cx="530" cy="-120" r="1"/>
+      <circle cx="640" cy="-300" r="1.2"/><circle cx="780" cy="-180" r="1.6"/>
+      <circle cx="900" cy="-350" r="1"/><circle cx="1040" cy="-240" r="1.4"/>
+      <circle cx="1130" cy="-90" r="1"/><circle cx="170" cy="-60" r="1.2"/>
+      <circle cx="350" cy="30" r="1"/><circle cx="700" cy="-30" r="1.4"/>
+      <circle cx="860" cy="50" r="1"/><circle cx="1000" cy="90" r="1.2"/>
+      <circle cx="60" cy="110" r="1"/><circle cx="480" cy="120" r="1"/>
+    </g>
+
+    <!-- Hills: the script fills in the shapes -->
+    <g class="ridge r1"><path id="ridge-1" fill="#9a5a3c"/></g>
+    <g class="ridge r2"><path id="ridge-2" fill="#7a4230"/></g>
+    <g class="ridge r3"><path id="ridge-3" fill="#55291e"/></g>
+    <rect y="550" width="1200" height="150" fill="#2f160f"/>
+
+    <!-- Mars scene: three distant signals -->
+    <g class="only-mars">
+      <g class="ping" transform="translate(300 470)"><circle class="ring" r="6"/><circle class="ring late" r="6"/><circle class="dot" r="5"/></g>
+      <g class="ping" transform="translate(720 495)"><circle class="ring" r="6"/><circle class="ring late" r="6"/><circle class="dot" r="5"/></g>
+      <g class="ping" transform="translate(980 460)"><circle class="ring" r="6"/><circle class="ring late" r="6"/><circle class="dot" r="5"/></g>
+    </g>
+
+    <!-- Perseverance scene -->
+    <g class="only-perseverance">
+      <polygon points="720,580 745,540 790,520 830,535 860,580" fill="#9A5A3C"/>
+      <path d="M730,566 H850 M740,552 H838 M752,538 H820" stroke="#9A5A3C" stroke-width="3" fill="none"/>
+      <g class="tracks" stroke="#1d0e09" stroke-width="3" fill="none">
+        <path d="M-260,586 H430" pathLength="690"/>
+        <path d="M-260,594 H430" pathLength="690"/>
+      </g>
+      <g class="drive"><use href="#perseverance" transform="scale(1.1)"/></g>
+      <g class="scan">
+        <line x1="473" y1="382" x2="770" y2="540"/>
+        <circle cx="770" cy="540" r="9"/>
+      </g>
+      <!-- The imagined bacteria, seen through a microscope-like circle -->
+      <g class="microscope"><g class="lens">
+        <circle cx="790" cy="470" r="124" fill="#0a1f2c"/>
+        <circle cx="790" cy="470" r="114" fill="url(#lens-bg)"/>
+        <g clip-path="url(#lens-clip)">
+          <g transform="translate(740 430) rotate(30)"><g class="bug" style="--d:-1.9s;--x1:-15px;--y1:1px;--x2:17px;--y2:-21px;--x3:-20px;--y3:10px;"><g class="bug-body"><rect x="-9" y="-23" width="18" height="46" rx="9" fill="#3fa7ff" stroke="#bfe6ff" stroke-width="1.5"/><ellipse cx="0" cy="-6" rx="3.5" ry="6" fill="#bfe6ff" opacity="0.35"/><path d="M0,23 q-8,6 0,12 t0,12" stroke="#3fa7ff" stroke-width="2" fill="none" stroke-linecap="round"/></g></g></g>
+          <g transform="translate(835 425) rotate(-60)"><g class="bug" style="--d:-0.6s;--x1:13px;--y1:-21px;--x2:8px;--y2:-11px;--x3:-22px;--y3:-19px;"><g class="bug-body"><rect x="-9" y="-23" width="18" height="46" rx="9" fill="#2e8fe6" stroke="#bfe6ff" stroke-width="1.5"/><ellipse cx="0" cy="-6" rx="3.5" ry="6" fill="#bfe6ff" opacity="0.35"/><path d="M0,23 q-8,6 0,12 t0,12" stroke="#2e8fe6" stroke-width="2" fill="none" stroke-linecap="round"/></g></g></g>
+          <g transform="translate(845 500) rotate(75)"><g class="bug" style="--d:-2.6s;--x1:-20px;--y1:-9px;--x2:-19px;--y2:11px;--x3:3px;--y3:-21px;"><g class="bug-body"><rect x="-9" y="-23" width="18" height="46" rx="9" fill="#58b8ff" stroke="#bfe6ff" stroke-width="1.5"/><ellipse cx="0" cy="-6" rx="3.5" ry="6" fill="#bfe6ff" opacity="0.35"/><path d="M0,23 q-8,6 0,12 t0,12" stroke="#58b8ff" stroke-width="2" fill="none" stroke-linecap="round"/></g></g></g>
+          <g transform="translate(755 520) rotate(-20)"><g class="bug" style="--d:-5.0s;--x1:-17px;--y1:-10px;--x2:16px;--y2:16px;--x3:13px;--y3:-21px;"><g class="bug-body"><rect x="-9" y="-23" width="18" height="46" rx="9" fill="#3fa7ff" stroke="#bfe6ff" stroke-width="1.5"/><ellipse cx="0" cy="-6" rx="3.5" ry="6" fill="#bfe6ff" opacity="0.35"/><path d="M0,23 q-8,6 0,12 t0,12" stroke="#3fa7ff" stroke-width="2" fill="none" stroke-linecap="round"/></g></g></g>
+          <g transform="translate(795 470) rotate(0)"><g class="bug" style="--d:-3.5s;--x1:1px;--y1:-21px;--x2:-10px;--y2:-22px;--x3:11px;--y3:-16px;"><g class="bug-body"><circle r="13" fill="#2e8fe6" stroke="#bfe6ff" stroke-width="1.5"/><circle cx="-3" cy="-3" r="4" fill="#bfe6ff" opacity="0.35"/></g></g></g>
+          <g transform="translate(718 485) rotate(0)"><g class="bug" style="--d:-1.7s;--x1:-15px;--y1:10px;--x2:-17px;--y2:12px;--x3:-5px;--y3:11px;"><g class="bug-body"><circle r="13" fill="#58b8ff" stroke="#bfe6ff" stroke-width="1.5"/><circle cx="-3" cy="-3" r="4" fill="#bfe6ff" opacity="0.35"/></g></g></g>
+          <g transform="translate(815 538) rotate(0)"><g class="bug" style="--d:-4.9s;--x1:-13px;--y1:-18px;--x2:13px;--y2:12px;--x3:16px;--y3:-12px;"><g class="bug-body"><circle r="13" fill="#3fa7ff" stroke="#bfe6ff" stroke-width="1.5"/><circle cx="-3" cy="-3" r="4" fill="#bfe6ff" opacity="0.35"/></g></g></g>
+          <g transform="translate(785 400) rotate(10)"><g class="bug" style="--d:-2.2s;--x1:11px;--y1:21px;--x2:-20px;--y2:12px;--x3:-21px;--y3:15px;"><g class="bug-body"><path d="M-26,0 q8,-14 17,0 t17,0 t17,0" stroke="#bfe6ff" stroke-width="11" fill="none" stroke-linecap="round"/><path d="M-26,0 q8,-14 17,0 t17,0 t17,0" stroke="#2e8fe6" stroke-width="8" fill="none" stroke-linecap="round"/></g></g></g>
+          <g transform="translate(858 468) rotate(100)"><g class="bug" style="--d:-1.2s;--x1:19px;--y1:10px;--x2:3px;--y2:-4px;--x3:5px;--y3:13px;"><g class="bug-body"><path d="M-26,0 q8,-14 17,0 t17,0 t17,0" stroke="#bfe6ff" stroke-width="11" fill="none" stroke-linecap="round"/><path d="M-26,0 q8,-14 17,0 t17,0 t17,0" stroke="#58b8ff" stroke-width="8" fill="none" stroke-linecap="round"/></g></g></g>
+        </g>
+        <circle cx="790" cy="470" r="112" fill="none" stroke="#bfe6ff" stroke-opacity="0.35" stroke-width="2"/>
+        <path d="M718,400 A100,100 0 0 1 790,370" stroke="#fff" stroke-opacity="0.25" stroke-width="6" fill="none" stroke-linecap="round"/>
+        <path d="M678,470 h12 M890,470 h12 M790,358 v12 M790,570 v12" stroke="#bfe6ff" stroke-opacity="0.5" stroke-width="2"/>
+        <circle cx="790" cy="470" r="119" fill="none" stroke="#2c3e4c" stroke-width="10"/>
+      </g></g>
+    </g>
+
+    <!-- Flashback scene: old wheel tracks, half covered by dust -->
+    <g class="only-flashback">
+      <g class="old-tracks" stroke="#1d0e09" stroke-width="6" fill="none" stroke-dasharray="14 12">
+        <path d="M440,700 L595,550"/>
+        <path d="M760,700 L605,550"/>
+      </g>
+      <rect y="550" width="1200" height="150" fill="#9b5638" opacity="0.28"/>
+    </g>
+
+    <!-- Opportunity scene -->
+    <g class="only-opportunity">
+      <use href="#opportunity" transform="translate(600 610) scale(1.4)"/>
+    </g>
+  </svg>
+</div>
+<div id="vignette" aria-hidden="true"></div>
+
 <main id="intro" aria-live="polite">
   <p id="line-1" class="line">Did life evolve only once in the entire universe&hellip;</p>
   <p id="line-2" class="line">&hellip;Or twice in just one solar system?</p>
-  <p id="prompt">Press space to continue</p>
 </main>
+
+<div id="label" aria-live="polite">
+  <p id="label-title"></p>
+  <p id="label-sub"></p>
+</div>
+<p id="narration" aria-live="polite"></p>
+
+<div id="curtain" aria-hidden="true"></div>
+<p id="prompt">Press space to continue</p>
+<p id="skip-hint">Press escape to skip to slideshow</p>
+
+
 <script src="app.js"></script>
 </body>
 </html>

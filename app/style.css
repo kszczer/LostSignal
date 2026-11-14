@@ -2,8 +2,10 @@
   --space: #000;
   --text: #f1ede4;
   --text-dim: #8d897f;
+  --signal: #7fe3d0;
   --fade-in: 2.5s;
   --fade-out: 2s;
+  --serif: Georgia, "Times New Roman", serif;
 }
 
 * { box-sizing: border-box; }
@@ -13,16 +15,21 @@ html, body {
   margin: 0;
   background: var(--space);
   color: var(--text);
+  overflow: hidden;
 }
+
+/* ---------- Intro text ---------- */
 
 /* Both lines share the same grid cell, so line 2 appears exactly where line 1 was */
 #intro {
+  position: relative;
+  z-index: 4;
   min-height: 100%;
   display: grid;
   place-items: center;
   padding: 2rem 2rem 5rem;
   text-align: center;
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: var(--serif);
 }
 
 .line {
@@ -41,21 +48,259 @@ html, body {
   transition: opacity var(--fade-in) ease-in;
 }
 
-/* "Press space to continue" */
+/* ---------- Stage (the picture) ---------- */
+
+#stage {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background: #140b10;   /* same as the top of the sky, so nothing shows when the camera tilts */
+  opacity: 0;
+  transition: opacity 4s ease-in, filter 1s ease;
+}
+
+#stage.on { opacity: 1; }
+
+#stage svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;   /* lets the extra sky above the picture show when the camera tilts up */
+}
+
+/* Camera tilts up: the picture slides down to show more sky */
+#stage.look-up svg {
+  transform: translateY(9%);
+  transition: transform 4s ease-in-out;
+}
+
+/* Flashback look: faded, old-photograph colours */
+#stage.flashback {
+  filter: sepia(0.85) saturate(0.75) contrast(1.05) brightness(0.9);
+}
+
+/* Only the parts that belong to the current scene are visible */
+.only-mars, .only-perseverance, .only-flashback, .only-opportunity { display: none; }
+#stage.mars .only-mars,
+#stage.perseverance .only-perseverance,
+#stage.flashback .only-flashback,
+#stage.opportunity .only-opportunity { display: inline; }
+
+/* ---------- Mars: hills slowly drift past ---------- */
+
+@keyframes drift {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-1200px); }
+}
+
+#stage.mars .r1 { animation: drift 140s linear infinite; }
+#stage.mars .r2 { animation: drift 90s linear infinite; }
+#stage.mars .r3 { animation: drift 55s linear infinite; }
+
+/* Distant signals */
+.ping { opacity: 0; }
+.ping.on { opacity: 1; transition: opacity 1s; }
+.ping .dot  { fill: var(--signal); }
+.ping .ring {
+  fill: none;
+  stroke: var(--signal);
+  stroke-width: 2;
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.ping.on .ring      { animation: ring 2.4s ease-out infinite; }
+.ping.on .ring.late { animation-delay: 1.2s; }
+
+@keyframes ring {
+  from { transform: scale(1); opacity: 0.9; }
+  to   { transform: scale(7); opacity: 0; }
+}
+
+/* ---------- Perseverance: drives up to the rock, then scans it ---------- */
+
+@keyframes drive {
+  from { transform: translate(-260px, 580px); }
+  to   { transform: translate(430px, 580px); }
+}
+
+@keyframes reveal {
+  from { stroke-dashoffset: 690; }
+  to   { stroke-dashoffset: 0; }
+}
+
+.drive {
+  transform: translate(-260px, 580px);
+  animation: drive 7s ease-out forwards;
+}
+
+.tracks path {
+  stroke-dasharray: 690;
+  stroke-dashoffset: 690;
+  opacity: 0.45;
+  animation: reveal 7s ease-out forwards;
+}
+
+.scan { opacity: 0; }
+.scan line   { stroke: var(--signal); stroke-width: 3; }
+.scan circle { fill: var(--signal); }
+
+@keyframes flicker {
+  from { opacity: 0.3; }
+  to   { opacity: 1; }
+}
+
+#stage.scanning .scan { animation: flicker 0.5s ease-in-out infinite alternate; }
+
+/* ---------- Finale: Perseverance is already at the rock, no driving ---------- */
+
+#stage.parked .drive {
+  animation: none;
+  transform: translate(430px, 580px);
+}
+
+#stage.parked .tracks path {
+  animation: none;
+  stroke-dashoffset: 0;
+}
+
+/* The imagined bacteria, seen through a microscope-like circle */
+.microscope { opacity: 0; }
+#stage.life .microscope { opacity: 1; }
+
+.lens, .bug, .bug-body {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+#stage.life .lens { animation: lens-in 1s ease-out both; }
+
+@keyframes lens-in {
+  from { opacity: 0; transform: scale(0.15); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* Each bacterium jumps between its own spots (--x1..--y3, set in index.html) and hops as it goes */
+#stage.life .bug {
+  animation: wander 7s cubic-bezier(0.2, 0.8, 0.3, 1) var(--d) infinite;
+}
+
+#stage.life .bug-body {
+  animation: hop 0.8s ease-out var(--d) infinite;
+}
+
+@keyframes wander {
+  0%, 12%   { transform: translate(0, 0); }
+  20%, 37%  { transform: translate(var(--x1), var(--y1)); }
+  45%, 62%  { transform: translate(var(--x2), var(--y2)); }
+  70%, 87%  { transform: translate(var(--x3), var(--y3)); }
+  95%, 100% { transform: translate(0, 0); }
+}
+
+@keyframes hop {
+  0%, 100% { transform: translateY(0); }
+  40%      { transform: translateY(-8px); }
+}
+
+/* ---------- Flashback: old tracks creep forward under the dust ---------- */
+
+@keyframes creep {
+  to { stroke-dashoffset: -52; }
+}
+
+.old-tracks { opacity: 0.55; }
+.old-tracks path { animation: creep 6s linear infinite; }
+
+/* ---------- Overlays ---------- */
+
+/* Darkens the edges and the bottom so the narration is easy to read */
+#vignette {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+          linear-gradient(to top, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0) 42%),
+          radial-gradient(ellipse at center, rgba(0, 0, 0, 0) 55%, rgba(0, 0, 0, 0.55) 100%);
+}
+
+/* Black cover used for scene cuts */
+#curtain {
+  position: fixed;
+  inset: 0;
+  z-index: 5;
+  background: #000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 1s ease;
+}
+
+#curtain.closed { opacity: 1; }
+
+/* ---------- Narration and labels ---------- */
+
+#narration {
+  position: fixed;
+  left: 50%;
+  bottom: 6.5rem;
+  z-index: 6;   /* above the black curtain, so narration can play on a black screen */
+  width: min(34em, 88vw);
+  margin: 0;
+  transform: translateX(-50%);
+  text-align: center;
+  font-family: var(--serif);
+  font-size: clamp(1.25rem, 2.6vw, 1.9rem);
+  line-height: 1.4;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.9);
+  opacity: 0;
+  transition: opacity 0.8s ease;
+}
+
+#narration.visible { opacity: 1; }
+
+#label {
+  position: fixed;
+  top: clamp(1.5rem, 5vh, 3rem);
+  left: clamp(1.5rem, 5vw, 4rem);
+  z-index: 3;
+  font-family: var(--serif);
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.9);
+  opacity: 0;
+  transition: opacity 1.5s ease;
+}
+
+#label.show { opacity: 1; }
+
+#label p { margin: 0; }
+
+#label-title {
+  font-size: clamp(1.6rem, 3.6vw, 2.6rem);
+  line-height: 1.15;
+}
+
+#label-sub {
+  margin-top: 0.35rem;
+  font-size: clamp(0.95rem, 1.6vw, 1.2rem);
+  font-style: italic;
+  color: var(--text-dim);
+}
+
+/* ---------- "Press space to continue" ---------- */
+
 #prompt {
   position: fixed;
   left: 0;
   right: 0;
-  bottom: 2rem;
+  bottom: 3.5rem;
+  z-index: 6;
   margin: 0;
   text-align: center;
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: var(--serif);
   font-style: italic;
   font-size: 1rem;
   color: var(--text-dim);
   opacity: 0;
   transition: opacity 0.8s ease-out;
-  cursor: pointer;
 }
 
 #prompt.visible {
@@ -63,9 +308,44 @@ html, body {
   transition: opacity 1.2s ease-in;
 }
 
+/* "Press esc to skip to slideshow" sits just above the prompt */
+#skip-hint {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 2rem;
+  z-index: 6;
+  margin: 0;
+  text-align: center;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 1rem;
+  color: var(--text-dim);
+  opacity: 0;
+  transition: opacity 0.8s ease-out;
+  cursor: pointer;
+
+}
+
+#skip-hint.visible {
+  opacity: 1;
+  transition: opacity 1.2s ease-in;
+}
+
 @media (prefers-reduced-motion: reduce) {
+  #stage .ridge,
+  #stage .ring,
+  #stage .old-tracks path,
+  #stage.life .bug,
+  #stage.life .bug-body,
+  #stage.scanning .scan { animation: none; }
+
   .line,
   .line.visible,
   #prompt,
-  #prompt.visible { transition-duration: 0.01s; }
+  #prompt.visible,
+  #skip-hint,
+  #skip-hint.visible,
+  #narration,
+  #label { transition-duration: 0.01s; }
 }
