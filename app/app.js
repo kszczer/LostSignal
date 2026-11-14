@@ -103,7 +103,8 @@ async function playIntro() {
 
         skipHint?.classList.remove('visible');
         prompt.classList.remove('visible');
-        prompt.classList.remove('raised');
+        // keep the prompt in place while it fades out, so it doesn't drop onto the skip hint
+        setTimeout(() => prompt.classList.remove('raised'), 1000);
     }
     line2.classList.remove('visible');
     await wait(FADE_OUT_MS + BLACK_MS);
@@ -353,7 +354,53 @@ const ROVERS = [
             ['Power source', 'Solar panels'],
             ['Status', 'Silent since 2010'],
             ['Type', 'Rover']
-        ]
+        ],
+
+        // Same structure as Opportunity's sections: put photo file names in the empty src values.
+        sections: {
+            mission: [
+                { p: 'When Spirit landed on Mars in January 2004, scientists believed they had chosen one of the most promising locations on the planet. From orbit, Gusev Crater appeared to be an ancient lake basin fed by a massive river channel. Billions of years ago, water may have flowed into this crater and remained there for long periods of time.' },
+                { p: 'The rover’s mission was to investigate whether this long-lost lake had really existed and whether it had left evidence behind.' },
+                { p: 'Spirit was designed to survive for only 90 Martian days, called sols. During that time, it would examine rocks, study the soil, and search for clues about Mars’ watery past. Scientists hoped the rover might reveal whether ancient Mars once contained environments that could support life.' }
+            ],
+
+            gallery: [
+                { gallery: [
+                        { src: 'img/spirit_g/1.png', alt: '', caption: '' },
+                        { src: 'img/spirit_g/2.png', alt: '', caption: '' },
+                        { src: 'img/spirit_g/3.png', alt: '', caption: '' }
+                    ] }
+            ],
+
+            discoveries: [
+                { p: 'Spirit’s greatest discoveries came after years of exploration.' },
+                { p: 'As the rover traveled toward the distant Columbia Hills, it began encountering rocks unlike anything previously studied on Mars. These rocks showed evidence of long-term interaction with water and revealed that some regions of Mars once experienced conditions very different from those seen today.' },
+                { p: 'One of Spirit’s most important findings was a large deposit rich in silica. On Earth, similar silica is commonly found around hot springs and hydrothermal systems. These environments are especially interesting because they can provide habitats for microorganisms.' }
+            ],
+
+            journey: [
+                { p: 'Spirit’s mission became a story of perseverance.' },
+                { p: 'After landing safely inside Gusev Crater, the rover spent years traversing rocky plains, climbing hills, and studying the Martian landscape. At first, the mission seemed disappointing. Many of the rocks appeared volcanic and showed little evidence of the ancient lake scientists hoped to find.' },
+                { p: 'The answers were not where researchers expected them to be.' },
+                { p: 'So Spirit kept driving.' },
+                { p: 'The breakthrough came only after Spirit reached the Columbia Hills. The journey there took months, but it proved to be worthwhile - Spirit began finding evidence of a very different Mars. Water-altered rocks, unusual minerals, and signs of ancient environmental changes started appearing everywhere.' },
+                { p: 'In 2006, one of Spirit’s wheels stopped working. Initially, this seemed like a major setback. Though, to the scientists’ surprise, the damaged wheel became one of Spirit’s most valuable scientific tools. As it dragged across the surface, it exposed hidden layers of soil that had not been seen for billions of years. Several important discoveries came directly from these accidental trenches.' },
+                { p: 'Years later, Spirit became trapped in soft Martian soil. Despite months of rescue attempts by engineers on Earth, the rover could not free itself. Communication was eventually lost in 2010.' },
+                { p: 'Today, Spirit remains where it stopped, silently resting on the surface of Mars.' }
+            ],
+
+            parts: [
+                { parts: [
+                        { name: 'Pancam', text: 'Captured panoramic views of Gusev Crater and the Columbia Hills, helping scientists investigate whether the region once contained water.' },
+                        { name: 'Robotic Arm', text: 'Enabled Spirit to study Martian rocks and soil up close, revealing evidence that ancient water had altered the landscape.' },
+                        { name: 'Rock Abrasion Tool', text: 'Removed weathered rock surfaces, allowing scientists to examine fresh material untouched for billions of years.' },
+                        { name: 'Spectrometers', text: 'Identified minerals associated with water activity and helped uncover evidence of ancient hydrothermal environments.' },
+                        { name: 'Solar Panels', text: 'Provided power for more than six years of exploration, allowing Spirit to greatly exceed its planned mission lifetime.' },
+                        { name: 'Wheels', text: 'Carried Spirit across plains and hills in search of evidence of water. When one wheel failed, it accidentally exposed hidden layers of soil that led to important discoveries.' },
+                        { name: 'Antenna', text: 'Sent thousands of images and scientific measurements back to Earth across millions of kilometers of space.' }
+                    ] }
+            ]
+        }
     },
     {
         name: 'Opportunity',
@@ -388,16 +435,16 @@ const ROVERS = [
 
             gallery: [
                 { gallery: [
-                        { src: '', alt: '', caption: '' },
-                        { src: '', alt: '', caption: '' },
-                        { src: '', alt: '', caption: '' }
+                        { src: 'img/opportunity_g/3.png', alt: '', caption: '' },
+                        { src: 'img/opportunity_g/4.png', alt: '', caption: '' },
+                        { src: 'img/opportunity_g/5.png', alt: '', caption: '' }
                     ] }
             ],
 
             discoveries: [
                 { h: 'The Blueberries' },
                 { p: 'Just weeks after landing, Opportunity found thousands of tiny spherical rocks scattered across the ground. Scientists nicknamed them “Martian Blueberries”.' },
-                { photo: { src: '', alt: 'The “Martian Blueberries”: tiny round rocks on the surface of Mars', caption: '' } },
+                { photo: { src: 'img/opportunity_g/bl.png', alt: 'The “Martian Blueberries”: tiny round rocks on the surface of Mars', caption: '' } },
                 { p: 'These small spheres contained hematite and were strong evidence that water had once interacted with the Martian surface.' },
                 { p: 'For scientists, this was a breakthrough.' },
                 { p: 'Mars was no longer just a planet that might have had water.' },
@@ -446,7 +493,52 @@ const ROVERS = [
             ['Power source', 'Solar panels'],
             ['Status', 'Silent since December 2022'],
             ['Type', 'Lander']
-        ]
+        ],
+
+        // No gallery for InSight: without a "gallery" section its Gallery button stays dimmed.
+        sections: {
+            mission: [
+                { p: 'Most Mars missions are designed to explore the surface.' },
+                { p: 'InSight had a different goal.' },
+                { p: 'Instead of studying ancient rivers, rocks, and craters, InSight was sent to investigate what lies beneath the surface of Mars. The mission’s name stands for Interior Exploration using Seismic Investigations, Geodesy and Heat Transport.' },
+                { p: 'Scientists wanted to answer questions that could not be solved by looking at the landscape alone:' },
+                { list: [
+                        'How thick is the Martian crust?',
+                        'What is hidden beneath the surface?',
+                        'Does Mars still experience seismic activity?',
+                        'How did Mars form billions of years ago?'
+                    ] },
+                { p: 'To answer these questions, NASA launched InSight on May 5, 2018. The lander safely touched down in Elysium Planitia on November 26, 2018 and became the first mission dedicated to studying the deep interior of Mars.' }
+            ],
+
+            discoveries: [
+                { p: 'One of InSight’s most important achievements was detecting hundreds of marsquakes.' },
+                { p: 'Just as earthquakes allow scientists to study Earth’s interior, marsquakes allowed researchers to investigate the hidden layers beneath the Martian surface. The vibrations traveled through the planet and revealed information about its structure.' },
+                { p: 'InSight also detected seismic signals created when meteorites struck Mars.' },
+                { p: 'These impacts helped scientists understand how energy travels through the planet and provided additional clues about its internal structure.' },
+                { p: 'InSight continuously measured the planet’s wind, temperature and air pressure.' }
+            ],
+
+            journey: [
+                { p: 'Unlike Spirit, Opportunity, Curiosity, and Perseverance, InSight never traveled across Mars.' },
+                { p: 'The moment it touched the surface, it had arrived at its destination. For four years, InSight sat alone on a flat Martian plain.' },
+                { p: 'InSight relied on solar panels for power. Over time, wind carried dust onto the panels, reducing the amount of sunlight they could capture. As power levels declined, the spacecraft gradually shut down systems to conserve energy.' },
+                { p: 'In December 2022, communication with InSight ended. The mission had successfully completed its scientific objectives and far exceeded its planned primary mission.' },
+                { p: 'Today, the lander remains exactly where it worked, resting quietly on the plains of Mars.' }
+            ],
+
+            parts: [
+                { parts: [
+                        { name: 'Instrument Deployment Camera', text: 'Captured images of the landing site and helped engineers monitor instrument placement.' },
+                        { name: 'Robotic Arm', text: 'Used to place scientific instruments directly onto the Martian surface.' },
+                        { name: 'SEIS Seismometer', text: 'The mission’s most important instrument. It detected marsquakes and allowed scientists to study the interior of Mars.' },
+                        { name: 'Heat Flow Probe', text: 'Designed to investigate heat escaping from the interior of the planet and study subsurface conditions.' },
+                        { name: 'Weather Sensors', text: 'Measured wind, pressure, and temperature throughout the mission.' },
+                        { name: 'Solar Panels', text: 'Provided electrical power for more than four years of scientific operations.' },
+                        { name: 'Antenna', text: 'Transmitted scientific measurements and discoveries back to Earth.' }
+                    ] }
+            ]
+        }
     },
     {
         name: 'Sojourner',
@@ -462,7 +554,52 @@ const ROVERS = [
             ['Power source', 'Solar panels'],
             ['Status', 'Silent since September 1997'],
             ['Type', 'Rover']
-        ]
+        ],
+
+        // No gallery for Sojourner: without a "gallery" section its Gallery button stays dimmed.
+        sections: {
+            mission: [
+                { p: 'Sojourner arrived on Mars on July 4, 1997 as part of NASA’s Mars Pathfinder mission. It became the first rover to successfully drive on another planet and marked the beginning of a new era of robotic exploration.' },
+                { p: 'At the time, NASA was not trying to answer whether life existed on Mars.' },
+                { p: 'First we had to find out if our technology could even survive on a different planet.' },
+                { p: 'The mission was designed as both a scientific investigation and a technology demonstration. If successful, it would prove that future generations of rovers could venture farther and explore more of Mars.' }
+            ],
+
+            discoveries: [
+                { p: 'Sojourner landed in a region called Ares Vallis, a vast plain believed to have been shaped by catastrophic floods billions of years ago.' },
+                { p: 'By studying rocks and soil around its landing site, the rover helped scientists better understand how water may have shaped the Martian surface in the distant past.' },
+                { p: 'But perhaps Sojourner’s most important discovery was not scientific at all.' },
+                { p: 'It demonstrated that a small robotic explorer could:' },
+                { list: [
+                        'navigate Martian terrain,',
+                        'avoid obstacles,',
+                        'perform scientific investigations,',
+                        'and most importantly, survive on another planet.'
+                    ] },
+                { p: 'Without that success, later rover missions might never have happened.' }
+            ],
+
+            journey: [
+                { p: 'Shortly after landing, Sojourner rolled down a ramp and became the first rover to drive across the surface of Mars.' },
+                { p: 'Its tracks marked the beginning of mobile robotic exploration beyond Earth.' },
+                { p: 'The rover spent its days carefully driving between rocks, analyzing their composition, and photographing the surrounding terrain.' },
+                { p: 'Unlike modern rovers that travel many kilometers, Sojourner stayed relatively close to its lander. Still, every meter felt like a mile.' },
+                { p: 'The rover was originally expected to operate for only a short period, but it continued functioning well beyond its planned mission.' },
+                { p: 'Communication was eventually lost later in 1997.' },
+                { p: 'Even though the mission was brief compared to later rovers, its impact would be felt for decades.' }
+            ],
+
+            parts: [
+                { parts: [
+                        { name: 'Cameras', text: 'Captured images of the Martian surface and helped engineers navigate the rover.' },
+                        { name: 'Mobility System', text: 'Allowed Sojourner to drive over rocks and uneven terrain, demonstrating that planetary rovers could operate successfully on Mars.' },
+                        { name: 'Alpha Proton X-Ray Spectrometer', text: 'Measured the chemical composition of rocks and soil.' },
+                        { name: 'Solar Panels', text: 'Converted sunlight into electricity to power the rover.' },
+                        { name: 'Wheels', text: 'Enabled the first successful surface exploration by a rover on another planet.' },
+                        { name: 'Communication System', text: 'Sent images and scientific data to the Pathfinder lander, which relayed the information back to Earth.' }
+                    ] }
+            ]
+        }
     }
 ];
 

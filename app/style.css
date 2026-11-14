@@ -403,6 +403,26 @@ html, body {
 
 #slideshow.show #slideshow-title { opacity: 1; }
 
+/* Discord invite at the bottom of the stars screen */
+#discord {
+  margin-top: auto;
+  padding-top: 2.5rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 0.95rem;
+  text-decoration: none;
+  opacity: 0;
+  transition: opacity 2s ease-in 2.5s, color 0.25s ease;
+}
+#slideshow.show #discord { opacity: 1; }
+#discord svg { width: 1.4rem; height: 1.4rem; flex: none; fill: currentColor; }
+#discord:hover,
+#discord:focus-visible { color: #fff; }
+#discord:focus-visible { outline: 2px solid rgba(255, 255, 255, 0.7); outline-offset: 4px; border-radius: 4px; }
+
+
 #rovers {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -857,6 +877,7 @@ html, body {
   #slideshow,
   #slideshow.show,
   #slideshow-title,
+  #discord,
   #rover-view,
   #rover-view.show,
   #rover-back,
