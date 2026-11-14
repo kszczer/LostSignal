@@ -1,0 +1,71 @@
+:root {
+  --space: #000;
+  --text: #f1ede4;
+  --text-dim: #8d897f;
+  --fade-in: 2.5s;
+  --fade-out: 2s;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  height: 100%;
+  margin: 0;
+  background: var(--space);
+  color: var(--text);
+}
+
+/* Both lines share the same grid cell, so line 2 appears exactly where line 1 was */
+#intro {
+  min-height: 100%;
+  display: grid;
+  place-items: center;
+  padding: 2rem 2rem 5rem;
+  text-align: center;
+  font-family: Georgia, "Times New Roman", serif;
+}
+
+.line {
+  grid-area: 1 / 1;
+  margin: 0;
+  max-width: 24ch;
+  font-size: clamp(1.6rem, 4.5vw, 3rem);
+  line-height: 1.3;
+  letter-spacing: 0.01em;
+  opacity: 0;
+  transition: opacity var(--fade-out) ease-out;
+}
+
+.line.visible {
+  opacity: 1;
+  transition: opacity var(--fade-in) ease-in;
+}
+
+/* "Press space to continue" */
+#prompt {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 2rem;
+  margin: 0;
+  text-align: center;
+  font-family: Georgia, "Times New Roman", serif;
+  font-style: italic;
+  font-size: 1rem;
+  color: var(--text-dim);
+  opacity: 0;
+  transition: opacity 0.8s ease-out;
+  cursor: pointer;
+}
+
+#prompt.visible {
+  opacity: 1;
+  transition: opacity 1.2s ease-in;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .line,
+  .line.visible,
+  #prompt,
+  #prompt.visible { transition-duration: 0.01s; }
+}
