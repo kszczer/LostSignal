@@ -1,10 +1,11 @@
 // Opening scene timing (milliseconds)
-const START_DELAY  = 1500;  // black screen before the first line
+// (Paced a little faster than before; the fade lengths below must stay in sync with style.css)
+const START_DELAY  = 1000;  // black screen before the first line
 const FADE_IN_MS   = 2500;  // keep in sync with --fade-in in style.css
-const HOLD_MS      = 2500;  // how long line 1 stays fully visible
+const HOLD_MS      = 1800;  // how long line 1 stays fully visible
 const FADE_OUT_MS  = 2000;  // keep in sync with --fade-out in style.css
-const BLACK_MS     = 1000;  // pause on pure black between the lines
-const PROMPT_DELAY = 1000;  // after line 2 has faded in, wait this long before showing the prompt
+const BLACK_MS     = 600;   // pause on pure black between the lines
+const PROMPT_DELAY = 700;   // after line 2 has faded in, wait this long before showing the prompt
 
 const line1  = document.getElementById('line-1');
 const line2  = document.getElementById('line-2');
@@ -198,7 +199,7 @@ function hideLabel() {
 async function say(text) {
     narration.textContent = text;
     narration.classList.add('visible');
-    const hurried = await waitOrSkip(1500 + text.length * 30);   // time to read; Space skips ahead
+    const hurried = await waitOrSkip(1100 + text.length * 24);   // time to read; Space skips ahead
     if (!hurried) {
         prompt.classList.add('visible');                         // "Press space to continue"
         await waitForSpace();
@@ -212,45 +213,45 @@ async function playStory() {
     // MARS: the camera drifts over valleys and craters
     setMode('mars');
     stage.classList.add('on');
-    await wait(4000);
+    await wait(3000);
 
     await say('For millions of years, Mars kept its secrets.');
-    await say('Then humans began digging.');
+    await say('Then humans got curious.');
 
     // Three distant signals
     for (const ping of document.querySelectorAll('.ping')) {
         ping.classList.add('on');
-        await wait(2200);
+        await wait(1700);
     }
-    await wait(1500);
+    await wait(1000);
 
     // PERSEVERANCE
     await cut('perseverance');
     showLabel('Perseverance', 'Jezero Crater - Present Day');
-    await wait(8000);                          // the rover drives up to the rock
+    await wait(3200);                          // the rover drives (drive animation is 3.5 s in style.css) up to the rock
     stage.classList.add('scanning');
-    await wait(3000);
+    await wait(2000);
     await say('This rover is searching for clues.');
     await say('Its target: rocks from an ancient lake, and any sign that tiny life once lived there.');
     stage.classList.remove('scanning');        // the scan stops
-    await wait(1500);
+    await wait(1000);
     hideLabel();
     stage.classList.add('look-up');            // the camera tilts toward the horizon
-    await wait(3500);
+    await wait(2500);
     await say("But this story didn't begin with Perseverance.");
 
     // FLASHBACK
     await cut('flashback');
-    await wait(3500);
+    await wait(2500);
     await say('Long before this rover arrived...');
     await say('others crossed these plains.');
-    await wait(3000);
+    await wait(2000);
 
     // OPPORTUNITY
     await cut('opportunity');
-    await wait(2500);
+    await wait(1800);
     showLabel('Opportunity', 'Last signal received: June 2018');
-    await wait(3500);
+    await wait(2500);
     await say('It was designed to survive ninety Martian days.');
     await say('It explored Mars for more than fourteen years.');
     await say('It searched for something simple: water.');
@@ -270,12 +271,12 @@ async function playStory() {
     setMode('perseverance', 'parked scanning');
     await wait(600);
     curtain.classList.remove('closed');
-    await wait(6500);                           // the rover and the scan stay on screen for a while
+    await wait(4500);                           // the rover and the scan stay on screen for a while
 
     // A microscope-like circle opens over the rock, with blue bacteria jumping around inside
     stage.classList.add('life');
     showLabel('An imagined scene', 'No life has been found on Mars yet');
-    await wait(14000);
+    await wait(10000);
 
     // The cinematic part is finished: fade out, play the closing monologue, then the slideshow
     hideLabel();
@@ -291,7 +292,7 @@ async function playStory() {
 
 // One beat: its lines appear one after another, with no prompt.
 // Space (or a tap) skips ahead to the next line.
-async function beat(lines, hold = 2600) {
+async function beat(lines, hold = 1800) {
     monologue.innerHTML = '';
     const paragraphs = lines.map(text => {
         const p = document.createElement('p');
@@ -302,12 +303,12 @@ async function beat(lines, hold = 2600) {
 
     for (const p of paragraphs) {
         p.classList.add('visible');
-        await waitOrSkip(1400 + p.textContent.length * 32);   // time to read the line
+        await waitOrSkip(1000 + p.textContent.length * 26);   // time to read the line
     }
     await waitOrSkip(hold);                                    // a moment with every line on screen
 
     paragraphs.forEach(p => p.classList.remove('visible'));
-    await wait(1400);
+    await wait(1100);
 }
 
 async function playMonologue() {
@@ -328,10 +329,9 @@ async function playMonologue() {
 
     // Beat 3: not alone
     await beat([
-        'But Perseverance is not the first explorer we left behind.',
+        'But Opportunity is not the first explorer we left behind.',
         'Buggies on the Moon. Landers on Mars. Probes still drifting out past the planets.',
         'Some went quiet years ago. Some are still travelling.',
-        'Each was built to answer one question.'
     ]);
 
 }

@@ -131,14 +131,14 @@ html, body {
 
 .drive {
   transform: translate(-260px, 580px);
-  animation: drive 7s ease-out forwards;
+  animation: drive 3.5s ease-out forwards;
 }
 
 .tracks path {
   stroke-dasharray: 690;
   stroke-dashoffset: 690;
   opacity: 0.45;
-  animation: reveal 7s ease-out forwards;
+  animation: reveal 3.5s ease-out forwards;
 }
 
 .scan { opacity: 0; }
